@@ -8,7 +8,7 @@
 #include "SinricPro.h"
 #include "SinricProSwitch.h"
 
-//secrets.h  -
+//secrets.h
 //#define APP_KEY           "APP_KEY" 
 //#define APP_SECRET        "APP_SECRET"
 char    SWITCH_ID_1[64] = ""; //customParameter via WifiManager
