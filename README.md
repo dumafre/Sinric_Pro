@@ -30,5 +30,9 @@ Following LED status are defined:
 ## Screenshots
 
 ![Setup](Images/SINRIC01.jpg)
+![Setup](Images/SINRIC02.jpg
 
-![Setup](Images/SINRIC02.jpg)
+
+## Links
+
+https://sinric.pro
