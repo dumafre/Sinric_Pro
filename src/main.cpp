@@ -8,7 +8,7 @@
 #include "SinricPro.h"
 #include "SinricProSwitch.h"
 
-//secrets.h-
+//secrets.h
 //#define APP_KEY           "APP_KEY" 
 //#define APP_SECRET        "APP_SECRET"
 char    SWITCH_ID_1[64] = ""; //customParameter via WifiManager
@@ -22,7 +22,6 @@ bool onPowerState1(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 1 turned %s", state?"on":"off");
  digitalWrite(4, state ? HIGH:LOW);
  digitalWrite(5, state ? HIGH:LOW);
- //digitalWrite(2, state ? LOW:HIGH);
 
  slm("ready").ledSetStill(state ? LOW:HIGH);
 
@@ -100,7 +99,7 @@ void setupWiFi() {
 
   wifiManager.setSaveConfigCallback(saveConfigCallback); // set config save notify callback
 
-  if (!wifiManager.autoConnect("25-8 Sinric")){
+  if (!wifiManager.autoConnect("Sinric")){
     Serial.println("Failed to connect and hit timeout");
   }
   else{
@@ -113,7 +112,6 @@ void setupSinricPro() {
   // add devices and callbacks to SinricPro
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
-  //pinMode(2, OUTPUT);
     
   SinricProSwitch& mySwitch1 = SinricPro[SWITCH_ID_1];
   mySwitch1.onPowerState(onPowerState1);  
@@ -128,23 +126,20 @@ void setupSinricPro() {
 // main setup function
 void setup() {
   pinMode(D4, OUTPUT);
-  slm.createStatusLed("ready", D4);
-  slm("ready").ledSetBlink(0.25, 50);
-
   Serial.begin(115200); Serial.printf("\r\n\r\n");
 
   pinMode(D7, INPUT_PULLUP);
 
   if(!digitalRead(D7)){
     Serial.println("D7 Jumper detected, resetting");
-    slm("ready").ledSetBlink(0.5, 50);
     wifiManager.erase();
   }
   
   setupWiFi();
-  slm("ready").ledSetBlink(1, 50);
-
+ 
   setupSinricPro();
+
+  slm.createStatusLed("ready", D4);
   slm("ready").ledSetBlink(2, 50);
 
   ArduinoOTA.begin();
@@ -154,5 +149,4 @@ void loop() {
   SinricPro.handle();
   ArduinoOTA.handle();
   slm.process(millis());
-
 }
