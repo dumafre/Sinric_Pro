@@ -52,5 +52,7 @@ StatusLED
 ## Links
 
 https://sinric.pro
+
 https://help.sinric.pro/pages/ota
+
 https://github.com/sinricpro/esp8266-esp32-sdk/tree/master/examples/OTAUpdate
