@@ -1,10 +1,25 @@
+// Your firmware version. Must be above SinricPro.h. Do not rename this.
+#define FIRMWARE_VERSION "0.2.1"  
+
+// Sketch -> Export Compiled Binary to export
+
+#ifdef ENABLE_DEBUG
+  #define DEBUG_ESP_PORT Serial
+  #define NODEBUG_WEBSOCKETS
+  #define NDEBUG
+#endif
+
 #include <Arduino.h>
 #include "secrets.h"
 #include <LittleFS.h>
-#include <ArduinoOTA.h>
+
 #include <WiFiManager.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266OTAHelper.h>
 #include <statusled.h>
 
+#include "SemVer.h"
 #include "SinricPro.h"
 #include "SinricProSwitch.h"
 
@@ -17,6 +32,39 @@ WiFiManager wifiManager;
 WiFiManagerParameter custom_SWITCH_ID_1("SWITCH_ID_1", "SWITCH_ID_1", SWITCH_ID_1, 60);
 
 StatusLedManager slm;
+
+bool handleOTAUpdate(const String& url, int major, int minor, int patch, bool forceUpdate) {
+  Version currentVersion  = Version(FIRMWARE_VERSION);
+  Version newVersion      = Version(String(major) + "." + String(minor) + "." + String(patch));
+  bool updateAvailable    = newVersion > currentVersion;
+
+  Serial.print("URL: ");
+  Serial.println(url.c_str());
+  Serial.print("Current version: ");
+  Serial.println(currentVersion.toString());
+  Serial.print("New version: ");
+  Serial.println(newVersion.toString());
+  if (forceUpdate) Serial.println("Enforcing OTA update!");
+
+  // Handle OTA update based on forceUpdate flag and update availability
+  if (forceUpdate || updateAvailable) {
+    if (updateAvailable) {
+      Serial.println("Update available!");
+    }
+
+    String result = startOtaUpdate(url);
+    if (!result.isEmpty()) {
+      SinricPro.setResponseMessage(std::move(result));
+      return false;
+    } 
+    return true;
+  } else {
+    String result = "Current version is up to date.";
+    SinricPro.setResponseMessage(std::move(result));
+    Serial.println(result);
+    return false;
+  }
+}
 
 bool onPowerState1(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 1 turned %s", state?"on":"off");
@@ -119,7 +167,7 @@ void setupSinricPro() {
   // setup SinricPro
   SinricPro.onConnected([](){ Serial.printf("Connected to SinricPro\r\n"); }); 
   SinricPro.onDisconnected([](){ Serial.printf("Disconnected from SinricPro\r\n"); });
-   
+  SinricPro.onOTAUpdate(handleOTAUpdate);  
   SinricPro.begin(APP_KEY, APP_SECRET);
 }
 
@@ -135,18 +183,14 @@ void setup() {
     wifiManager.erase();
   }
   
-  setupWiFi();
- 
+  setupWiFi(); 
   setupSinricPro();
 
   slm.createStatusLed("ready", D4);
   slm("ready").ledSetBlink(2, 50);
-
-  ArduinoOTA.begin();
 }
 
 void loop() {
   SinricPro.handle();
-  ArduinoOTA.handle();
   slm.process(millis());
 }

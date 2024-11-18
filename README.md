@@ -26,13 +26,29 @@ Following LED status are defined:
 - whenswitch off command received:      steady OFF
 - whenswitch on command received:       steady ON
 
+## Versions
+Only tested on 8266 Wemos.
+
+### 0.2.1 OTA version
+
+Sinric SDK 3.3.1 with OTA support
+Firmware with OTA-Support
+firmware_0.2.1.bin
+
+### 0.01 First version
+
+Sinric SwiTch
+WifiManager
+StatusLED
 
 ## Screenshots
 
 ![Setup](Images/SINRIC01.jpg)
 ![Setup](Images/SINRIC02.jpg
-
+![Setup](Images/SINRIC03.jpg
 
 ## Links
 
 https://sinric.pro
+https://help.sinric.pro/pages/ota
+https://github.com/sinricpro/esp8266-esp32-sdk/tree/master/examples/OTAUpdate
