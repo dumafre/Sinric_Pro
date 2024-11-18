@@ -37,15 +37,15 @@ firmware_0.2.1.bin
 
 ### 0.01 First version
 
-Sinric SwiTch
+Sinric Switch
 WifiManager
 StatusLED
 
 ## Screenshots
 
 ![Setup](Images/SINRIC01.jpg)
-![Setup](Images/SINRIC02.jpg
-![Setup](Images/SINRIC03.jpg
+![Setup](Images/SINRIC02.jpg)
+![Setup](Images/SINRIC03.jpg)
 
 ## Links
 
