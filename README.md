@@ -43,9 +43,11 @@ StatusLED
 
 ## Screenshots
 
-![Setup]("Images/SINRIC01.jpg")
-![Setup]("Images/SINRIC02.jpg")
-![Setup]("Images/SINRIC03.jpg")
+![Setup](Images/SINRIC01.jpg)
+
+![Setup](Images/SINRIC02.jpg)
+
+![Setup](Images/SINRIC03.jpg)
 
 ## Links
 
