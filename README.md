@@ -32,9 +32,13 @@ Only tested on 8266 Wemos.
 ### 0.3.1 Multiple switch version
 
 PIN_SWITCH_ID_1 = 5;  //D1
+
 PIN_SWITCH_ID_2 = 4;  //D2
+
 PIN_SWITCH_ID_3 = 14; //D5
+
 PIN_SWITCH_ID_4 = 12; //D6
+
 PIN_SWITCH_ID_5 = 13; //D7
 
 ### 0.2.1 OTA version
@@ -53,7 +57,7 @@ StatusLED
 
 ![Setup](Images/SINRIC01.jpg)
 
-![Setup](Images/SINRIC02.jpg)
+![Setup](Images/SINRIC04.jpg)
 
 ![Setup](Images/SINRIC03.jpg)
 
