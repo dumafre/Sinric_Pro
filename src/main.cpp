@@ -91,35 +91,35 @@ bool onPowerState1(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 1 turned %s", state?"on":"off");
  digitalWrite(PIN_SWITCH_ID_1, state ? HIGH:LOW);
  slm("ready").ledSetStill(state ? LOW:HIGH);
- return true; // request handled properly
+ return true; 
 }
 
 bool onPowerState2(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 2 turned %s", state?"on":"off");
  digitalWrite(PIN_SWITCH_ID_2, state ? HIGH:LOW);
  slm("ready").ledSetStill(state ? LOW:HIGH);
- return true; // request handled properly
+ return true; 
 }
 
 bool onPowerState3(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 3 turned %s", state?"on":"off");
  digitalWrite(PIN_SWITCH_ID_3, state ? HIGH:LOW);
  slm("ready").ledSetStill(state ? LOW:HIGH);
- return true; // request handled properly
+ return true; 
 }
 
 bool onPowerState4(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 4 turned %s", state?"on":"off");
  digitalWrite(PIN_SWITCH_ID_4, state ? HIGH:LOW);
  slm("ready").ledSetStill(state ? LOW:HIGH);
- return true; // request handled properly
+ return true; 
 }
 
 bool onPowerState5(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 5 turned %s", state?"on":"off");
  digitalWrite(PIN_SWITCH_ID_5, state ? HIGH:LOW);
  slm("ready").ledSetStill(state ? LOW:HIGH);
- return true; // request handled properly
+ return true; 
 }
 
 // callback notifying us of the need to save config
