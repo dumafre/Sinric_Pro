@@ -1,6 +1,6 @@
 # Sinric_pro
 ## Purpose 
-This program runs on an ESP8266 to follow a SinricPro switch state. SinricPro switch state is controlled by Google Assistantor Alexa or other.
+This program runs on an ESP8266 to follow a SinricPro switch state. SinricPro switch state is controlled by Google Assistant or Alexa or other.
 
 ## Captive portal
 Without known wifi, the captive portal is started.
@@ -29,23 +29,39 @@ Following LED status are defined:
 ## Versions
 Only tested on 8266 Wemos.
 
+### 0.3.1 Multiple switch version
+
+PIN_SWITCH_ID_1 = 5;  //D1
+
+PIN_SWITCH_ID_2 = 4;  //D2
+
+PIN_SWITCH_ID_3 = 14; //D5
+
+PIN_SWITCH_ID_4 = 12; //D6
+
+PIN_SWITCH_ID_5 = 13; //D7
+
 ### 0.2.1 OTA version
 
 Sinric SDK 3.3.1 with OTA support
+
 Firmware with OTA-Support
+
 firmware_0.2.1.bin
 
 ### 0.01 First version
 
 Sinric Switch
+
 WifiManager
+
 StatusLED
 
 ## Screenshots
 
 ![Setup](Images/SINRIC01.jpg)
 
-![Setup](Images/SINRIC02.jpg)
+![Setup](Images/SINRIC04.jpg)
 
 ![Setup](Images/SINRIC03.jpg)
 

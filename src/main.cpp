@@ -1,5 +1,10 @@
 // Your firmware version. Must be above SinricPro.h. Do not rename this.
-#define FIRMWARE_VERSION "0.2.1"  
+
+// 0.1.1 Single switch
+// 0.2.1 plus ota
+// 0.3.1 multiple switch
+
+#define FIRMWARE_VERSION "0.3.1"  
 
 // Sketch -> Export Compiled Binary to export
 
@@ -23,13 +28,29 @@
 #include "SinricPro.h"
 #include "SinricProSwitch.h"
 
+const byte PIN_SWITCH_ID_1 = 5;  //D1
+const byte PIN_SWITCH_ID_2 = 4;  //D2
+const byte PIN_SWITCH_ID_3 = 14; //D5
+const byte PIN_SWITCH_ID_4 = 12; //D6
+const byte PIN_SWITCH_ID_5 = 13; //D7
+
 //secrets.h
 //#define APP_KEY           "APP_KEY" 
 //#define APP_SECRET        "APP_SECRET"
-char    SWITCH_ID_1[64] = ""; //customParameter via WifiManager
+
+//customParameter via WifiManager
+char    SWITCH_ID_1[64] = ""; 
+char    SWITCH_ID_2[64] = "";
+char    SWITCH_ID_3[64] = ""; 
+char    SWITCH_ID_4[64] = "";
+char    SWITCH_ID_5[64] = "";
 
 WiFiManager wifiManager;
 WiFiManagerParameter custom_SWITCH_ID_1("SWITCH_ID_1", "SWITCH_ID_1", SWITCH_ID_1, 60);
+WiFiManagerParameter custom_SWITCH_ID_2("SWITCH_ID_2", "SWITCH_ID_2", SWITCH_ID_2, 60);
+WiFiManagerParameter custom_SWITCH_ID_3("SWITCH_ID_3", "SWITCH_ID_3", SWITCH_ID_3, 60);
+WiFiManagerParameter custom_SWITCH_ID_4("SWITCH_ID_4", "SWITCH_ID_4", SWITCH_ID_4, 60);
+WiFiManagerParameter custom_SWITCH_ID_5("SWITCH_ID_5", "SWITCH_ID_5", SWITCH_ID_5, 60);
 
 StatusLedManager slm;
 
@@ -68,12 +89,37 @@ bool handleOTAUpdate(const String& url, int major, int minor, int patch, bool fo
 
 bool onPowerState1(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 1 turned %s", state?"on":"off");
- digitalWrite(4, state ? HIGH:LOW);
- digitalWrite(5, state ? HIGH:LOW);
-
+ digitalWrite(PIN_SWITCH_ID_1, state ? HIGH:LOW);
  slm("ready").ledSetStill(state ? LOW:HIGH);
+ return true; 
+}
 
- return true; // request handled properly
+bool onPowerState2(const String &deviceId, bool &state) {
+ Serial.printf("\nDevice 2 turned %s", state?"on":"off");
+ digitalWrite(PIN_SWITCH_ID_2, state ? HIGH:LOW);
+ slm("ready").ledSetStill(state ? LOW:HIGH);
+ return true; 
+}
+
+bool onPowerState3(const String &deviceId, bool &state) {
+ Serial.printf("\nDevice 3 turned %s", state?"on":"off");
+ digitalWrite(PIN_SWITCH_ID_3, state ? HIGH:LOW);
+ slm("ready").ledSetStill(state ? LOW:HIGH);
+ return true; 
+}
+
+bool onPowerState4(const String &deviceId, bool &state) {
+ Serial.printf("\nDevice 4 turned %s", state?"on":"off");
+ digitalWrite(PIN_SWITCH_ID_4, state ? HIGH:LOW);
+ slm("ready").ledSetStill(state ? LOW:HIGH);
+ return true; 
+}
+
+bool onPowerState5(const String &deviceId, bool &state) {
+ Serial.printf("\nDevice 5 turned %s", state?"on":"off");
+ digitalWrite(PIN_SWITCH_ID_5, state ? HIGH:LOW);
+ slm("ready").ledSetStill(state ? LOW:HIGH);
+ return true; 
 }
 
 // callback notifying us of the need to save config
@@ -81,10 +127,18 @@ void saveConfigCallback(){
 
   Serial.println("Saving new config");
   strcpy(SWITCH_ID_1, custom_SWITCH_ID_1.getValue());
+  strcpy(SWITCH_ID_2, custom_SWITCH_ID_2.getValue());
+  strcpy(SWITCH_ID_3, custom_SWITCH_ID_3.getValue());
+  strcpy(SWITCH_ID_4, custom_SWITCH_ID_4.getValue());
+  strcpy(SWITCH_ID_5, custom_SWITCH_ID_5.getValue());
 
   DynamicJsonDocument json(256);
 
   json["SWITCH_ID_1"] = SWITCH_ID_1;
+  json["SWITCH_ID_2"] = SWITCH_ID_2;
+  json["SWITCH_ID_3"] = SWITCH_ID_3;
+  json["SWITCH_ID_4"] = SWITCH_ID_4;
+  json["SWITCH_ID_5"] = SWITCH_ID_5;
 
   File configFile = LittleFS.open("/config.json", "w");
   if (!configFile)
@@ -115,13 +169,23 @@ void readParamsFromFS(){
         auto deserializeError = deserializeJson(json, buf.get());
         serializeJson(json, Serial);
         Serial.println();
+
         if (!deserializeError){
           if (json.containsKey("SWITCH_ID_1"))
             strcpy(SWITCH_ID_1, json["SWITCH_ID_1"]);
+          if (json.containsKey("SWITCH_ID_2"))
+            strcpy(SWITCH_ID_2, json["SWITCH_ID_2"]);
+          if (json.containsKey("SWITCH_ID_3"))
+            strcpy(SWITCH_ID_3, json["SWITCH_ID_3"]);
+          if (json.containsKey("SWITCH_ID_4"))
+            strcpy(SWITCH_ID_4, json["SWITCH_ID_4"]);
+          if (json.containsKey("SWITCH_ID_5"))
+            strcpy(SWITCH_ID_5, json["SWITCH_ID_5"]);
         }
         else{
           Serial.println("Failed to load json config");
         }
+
         configFile.close();
       }
     }
@@ -143,7 +207,15 @@ void setupWiFi() {
   wifiManager.setAPClientCheck(true);      // avoid timeout if client connected to softap
 
   wifiManager.addParameter(&custom_SWITCH_ID_1);      // set custom parameter for IO key
+  wifiManager.addParameter(&custom_SWITCH_ID_2);      // set custom parameter for IO key
+  wifiManager.addParameter(&custom_SWITCH_ID_3);      // set custom parameter for IO key
+  wifiManager.addParameter(&custom_SWITCH_ID_4);      // set custom parameter for IO key
+  wifiManager.addParameter(&custom_SWITCH_ID_5);      // set custom parameter for IO key
   custom_SWITCH_ID_1.setValue(SWITCH_ID_1, 64); // set custom parameter value
+  custom_SWITCH_ID_2.setValue(SWITCH_ID_2, 64); // set custom parameter value
+  custom_SWITCH_ID_3.setValue(SWITCH_ID_3, 64); // set custom parameter value
+  custom_SWITCH_ID_4.setValue(SWITCH_ID_4, 64); // set custom parameter value
+  custom_SWITCH_ID_5.setValue(SWITCH_ID_5, 64); // set custom parameter value
 
   wifiManager.setSaveConfigCallback(saveConfigCallback); // set config save notify callback
 
@@ -158,11 +230,23 @@ void setupWiFi() {
 // setup function for SinricPro
 void setupSinricPro() {
   // add devices and callbacks to SinricPro
-  pinMode(4, OUTPUT);
-  pinMode(5, OUTPUT);
+  pinMode(PIN_SWITCH_ID_1, OUTPUT);
+  pinMode(PIN_SWITCH_ID_2, OUTPUT);
+  pinMode(PIN_SWITCH_ID_3, OUTPUT);
+  pinMode(PIN_SWITCH_ID_4, OUTPUT);
+  pinMode(PIN_SWITCH_ID_5, OUTPUT);
     
   SinricProSwitch& mySwitch1 = SinricPro[SWITCH_ID_1];
+  SinricProSwitch& mySwitch2 = SinricPro[SWITCH_ID_2];
+  SinricProSwitch& mySwitch3 = SinricPro[SWITCH_ID_3];
+  SinricProSwitch& mySwitch4 = SinricPro[SWITCH_ID_4];
+  SinricProSwitch& mySwitch5 = SinricPro[SWITCH_ID_5];
+
   mySwitch1.onPowerState(onPowerState1);  
+  mySwitch2.onPowerState(onPowerState2);  
+  mySwitch3.onPowerState(onPowerState3);  
+  mySwitch4.onPowerState(onPowerState4);  
+  mySwitch5.onPowerState(onPowerState5);  
   
   // setup SinricPro
   SinricPro.onConnected([](){ Serial.printf("Connected to SinricPro\r\n"); }); 
@@ -173,9 +257,12 @@ void setupSinricPro() {
 
 // main setup function
 void setup() {
+
+  //Status LED
   pinMode(D4, OUTPUT);
   Serial.begin(115200); Serial.printf("\r\n\r\n");
 
+  //RESET jumper
   pinMode(D7, INPUT_PULLUP);
 
   if(!digitalRead(D7)){
