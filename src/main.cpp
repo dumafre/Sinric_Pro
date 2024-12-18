@@ -3,11 +3,9 @@
 // 0.1.1 Single switch
 // 0.2.1 plus ota
 // 0.3.1 multiple switch
+// 0.4.1 2 switch outputs, two contact inputs
 
-#define FIRMWARE_VERSION "0.3.1"  
-
-// Sketch -> Export Compiled Binary to export
-
+#define FIRMWARE_VERSION "0.4.1"  
 #ifdef ENABLE_DEBUG
   #define DEBUG_ESP_PORT Serial
   #define NODEBUG_WEBSOCKETS
@@ -27,12 +25,13 @@
 #include "SemVer.h"
 #include "SinricPro.h"
 #include "SinricProSwitch.h"
+#include "SinricProContactsensor.h"
 
-const byte PIN_SWITCH_ID_1 = 5;  //D1
-const byte PIN_SWITCH_ID_2 = 4;  //D2
-const byte PIN_SWITCH_ID_3 = 14; //D5
-const byte PIN_SWITCH_ID_4 = 12; //D6
-const byte PIN_SWITCH_ID_5 = 13; //D7
+const byte PIN_SWITCH_ID_1 = 14; //D5 - input 1
+const byte PIN_SWITCH_ID_2 = 12; //D6 - input 2
+
+const byte PIN_CONTACT_ID_1 = 5;  //D1 - output 1
+const byte PIN_CONTACT_ID_2 = 4;  //D2 - output 2
 
 //secrets.h
 //#define APP_KEY           "APP_KEY" 
@@ -41,16 +40,16 @@ const byte PIN_SWITCH_ID_5 = 13; //D7
 //customParameter via WifiManager
 char    SWITCH_ID_1[64] = ""; 
 char    SWITCH_ID_2[64] = "";
-char    SWITCH_ID_3[64] = ""; 
-char    SWITCH_ID_4[64] = "";
-char    SWITCH_ID_5[64] = "";
+
+char    CONTACT_ID_1[64] = "";
+char    CONTACT_ID_2[64] = "";
 
 WiFiManager wifiManager;
-WiFiManagerParameter custom_SWITCH_ID_1("SWITCH_ID_1", "SWITCH_ID_1", SWITCH_ID_1, 60);
-WiFiManagerParameter custom_SWITCH_ID_2("SWITCH_ID_2", "SWITCH_ID_2", SWITCH_ID_2, 60);
-WiFiManagerParameter custom_SWITCH_ID_3("SWITCH_ID_3", "SWITCH_ID_3", SWITCH_ID_3, 60);
-WiFiManagerParameter custom_SWITCH_ID_4("SWITCH_ID_4", "SWITCH_ID_4", SWITCH_ID_4, 60);
-WiFiManagerParameter custom_SWITCH_ID_5("SWITCH_ID_5", "SWITCH_ID_5", SWITCH_ID_5, 60);
+WiFiManagerParameter custom_SWITCH_ID_1("SWITCH_ID_1", "INPUT_1", SWITCH_ID_1, 60);
+WiFiManagerParameter custom_SWITCH_ID_2("SWITCH_ID_2", "INPUT_2", SWITCH_ID_2, 60);
+
+WiFiManagerParameter custom_CONTACT_ID_1("CONTACT_ID_1", "OUTPUT_1", CONTACT_ID_1, 60);
+WiFiManagerParameter custom_CONTACT_ID_2("CONTACT_ID_2", "OUTPUT_2", CONTACT_ID_2, 60);
 
 StatusLedManager slm;
 
@@ -101,25 +100,42 @@ bool onPowerState2(const String &deviceId, bool &state) {
  return true; 
 }
 
-bool onPowerState3(const String &deviceId, bool &state) {
- Serial.printf("\nDevice 3 turned %s", state?"on":"off");
- digitalWrite(PIN_SWITCH_ID_3, state ? HIGH:LOW);
- slm("ready").ledSetStill(state ? LOW:HIGH);
- return true; 
+bool lastContactState1 = false;
+unsigned long lastChange1 = 0;
+
+void handleContactsensor1() {
+
+  unsigned long actualMillis = millis();
+  if (actualMillis - lastChange1 < 250) return;          // debounce contact state transitions (same as debouncing a pushbutton)
+
+  bool actualContactState = digitalRead(PIN_CONTACT_ID_1);   // read actual state of contactsensor
+
+  if (actualContactState != lastContactState1) {         // if state has changed
+    Serial.printf("Contactsensor1 is %s now\r\n", actualContactState?"open":"closed");
+    lastContactState1 = actualContactState;              // update last known state
+    lastChange1 = actualMillis;                          // update debounce time
+    SinricProContactsensor &myContact1 = SinricPro[CONTACT_ID_1]; // get contact sensor device
+    myContact1.sendContactEvent(actualContactState);      // send event with actual state
+  }
 }
 
-bool onPowerState4(const String &deviceId, bool &state) {
- Serial.printf("\nDevice 4 turned %s", state?"on":"off");
- digitalWrite(PIN_SWITCH_ID_4, state ? HIGH:LOW);
- slm("ready").ledSetStill(state ? LOW:HIGH);
- return true; 
-}
+bool lastContactState2 = false;
+unsigned long lastChange2 = 0;
 
-bool onPowerState5(const String &deviceId, bool &state) {
- Serial.printf("\nDevice 5 turned %s", state?"on":"off");
- digitalWrite(PIN_SWITCH_ID_5, state ? HIGH:LOW);
- slm("ready").ledSetStill(state ? LOW:HIGH);
- return true; 
+void handleContactsensor2() {
+
+  unsigned long actualMillis = millis();
+  if (actualMillis - lastChange2 < 250) return;          // debounce contact state transitions (same as debouncing a pushbutton)
+
+  bool actualContactState = digitalRead(PIN_CONTACT_ID_2);   // read actual state of contactsensor
+
+  if (actualContactState != lastContactState2) {         // if state has changed
+    Serial.printf("Contactsensor2 is %s now\r\n", actualContactState?"open":"closed");
+    lastContactState2 = actualContactState;              // update last known state
+    lastChange2 = actualMillis;                          // update debounce time
+    SinricProContactsensor &myContact2 = SinricPro[CONTACT_ID_2]; // get contact sensor device
+    myContact2.sendContactEvent(actualContactState);      // send event with actual state
+  }
 }
 
 // callback notifying us of the need to save config
@@ -128,17 +144,17 @@ void saveConfigCallback(){
   Serial.println("Saving new config");
   strcpy(SWITCH_ID_1, custom_SWITCH_ID_1.getValue());
   strcpy(SWITCH_ID_2, custom_SWITCH_ID_2.getValue());
-  strcpy(SWITCH_ID_3, custom_SWITCH_ID_3.getValue());
-  strcpy(SWITCH_ID_4, custom_SWITCH_ID_4.getValue());
-  strcpy(SWITCH_ID_5, custom_SWITCH_ID_5.getValue());
+
+  strcpy(CONTACT_ID_1, custom_CONTACT_ID_1.getValue());
+  strcpy(CONTACT_ID_2, custom_CONTACT_ID_2.getValue());
 
   DynamicJsonDocument json(256);
 
   json["SWITCH_ID_1"] = SWITCH_ID_1;
   json["SWITCH_ID_2"] = SWITCH_ID_2;
-  json["SWITCH_ID_3"] = SWITCH_ID_3;
-  json["SWITCH_ID_4"] = SWITCH_ID_4;
-  json["SWITCH_ID_5"] = SWITCH_ID_5;
+
+  json["CONTACT_ID_1"] = CONTACT_ID_1;
+  json["CONTACT_ID_2"] = CONTACT_ID_2;
 
   File configFile = LittleFS.open("/config.json", "w");
   if (!configFile)
@@ -175,12 +191,11 @@ void readParamsFromFS(){
             strcpy(SWITCH_ID_1, json["SWITCH_ID_1"]);
           if (json.containsKey("SWITCH_ID_2"))
             strcpy(SWITCH_ID_2, json["SWITCH_ID_2"]);
-          if (json.containsKey("SWITCH_ID_3"))
-            strcpy(SWITCH_ID_3, json["SWITCH_ID_3"]);
-          if (json.containsKey("SWITCH_ID_4"))
-            strcpy(SWITCH_ID_4, json["SWITCH_ID_4"]);
-          if (json.containsKey("SWITCH_ID_5"))
-            strcpy(SWITCH_ID_5, json["SWITCH_ID_5"]);
+
+          if (json.containsKey("CONTACT_ID_1"))
+            strcpy(CONTACT_ID_1, json["CONTACT_ID_1"]);
+          if (json.containsKey("CONTACT_ID_2"))
+            strcpy(CONTACT_ID_2, json["CONTACT_ID_2"]);
         }
         else{
           Serial.println("Failed to load json config");
@@ -208,14 +223,14 @@ void setupWiFi() {
 
   wifiManager.addParameter(&custom_SWITCH_ID_1);      // set custom parameter for IO key
   wifiManager.addParameter(&custom_SWITCH_ID_2);      // set custom parameter for IO key
-  wifiManager.addParameter(&custom_SWITCH_ID_3);      // set custom parameter for IO key
-  wifiManager.addParameter(&custom_SWITCH_ID_4);      // set custom parameter for IO key
-  wifiManager.addParameter(&custom_SWITCH_ID_5);      // set custom parameter for IO key
+
+  wifiManager.addParameter(&custom_CONTACT_ID_1);      // set custom parameter for IO key
+  wifiManager.addParameter(&custom_CONTACT_ID_2);      // set custom parameter for IO key
   custom_SWITCH_ID_1.setValue(SWITCH_ID_1, 64); // set custom parameter value
   custom_SWITCH_ID_2.setValue(SWITCH_ID_2, 64); // set custom parameter value
-  custom_SWITCH_ID_3.setValue(SWITCH_ID_3, 64); // set custom parameter value
-  custom_SWITCH_ID_4.setValue(SWITCH_ID_4, 64); // set custom parameter value
-  custom_SWITCH_ID_5.setValue(SWITCH_ID_5, 64); // set custom parameter value
+
+  custom_CONTACT_ID_1.setValue(CONTACT_ID_1, 64); // set custom parameter value
+  custom_CONTACT_ID_2.setValue(CONTACT_ID_2, 64); // set custom parameter value
 
   wifiManager.setSaveConfigCallback(saveConfigCallback); // set config save notify callback
 
@@ -230,24 +245,16 @@ void setupWiFi() {
 // setup function for SinricPro
 void setupSinricPro() {
   // add devices and callbacks to SinricPro
-  pinMode(PIN_SWITCH_ID_1, OUTPUT);
-  pinMode(PIN_SWITCH_ID_2, OUTPUT);
-  pinMode(PIN_SWITCH_ID_3, OUTPUT);
-  pinMode(PIN_SWITCH_ID_4, OUTPUT);
-  pinMode(PIN_SWITCH_ID_5, OUTPUT);
-    
+
   SinricProSwitch& mySwitch1 = SinricPro[SWITCH_ID_1];
   SinricProSwitch& mySwitch2 = SinricPro[SWITCH_ID_2];
-  SinricProSwitch& mySwitch3 = SinricPro[SWITCH_ID_3];
-  SinricProSwitch& mySwitch4 = SinricPro[SWITCH_ID_4];
-  SinricProSwitch& mySwitch5 = SinricPro[SWITCH_ID_5];
 
   mySwitch1.onPowerState(onPowerState1);  
   mySwitch2.onPowerState(onPowerState2);  
-  mySwitch3.onPowerState(onPowerState3);  
-  mySwitch4.onPowerState(onPowerState4);  
-  mySwitch5.onPowerState(onPowerState5);  
-  
+
+  SinricProContactsensor& myContact1 = SinricPro[CONTACT_ID_1];
+  SinricProContactsensor& myContact2 = SinricPro[CONTACT_ID_2];
+
   // setup SinricPro
   SinricPro.onConnected([](){ Serial.printf("Connected to SinricPro\r\n"); }); 
   SinricPro.onDisconnected([](){ Serial.printf("Disconnected from SinricPro\r\n"); });
@@ -257,6 +264,12 @@ void setupSinricPro() {
 
 // main setup function
 void setup() {
+
+  pinMode(PIN_SWITCH_ID_1, OUTPUT);
+  pinMode(PIN_SWITCH_ID_2, OUTPUT);
+
+  pinMode(PIN_CONTACT_ID_1, INPUT_PULLUP);
+  pinMode(PIN_CONTACT_ID_2, INPUT_PULLUP);
 
   //Status LED
   pinMode(D4, OUTPUT);
@@ -271,6 +284,7 @@ void setup() {
   }
   
   setupWiFi(); 
+  delay(1000);
   setupSinricPro();
 
   slm.createStatusLed("ready", D4);
@@ -279,5 +293,8 @@ void setup() {
 
 void loop() {
   SinricPro.handle();
+  handleContactsensor1();
+  handleContactsensor2();
+
   slm.process(millis());
 }

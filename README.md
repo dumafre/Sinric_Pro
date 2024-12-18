@@ -29,6 +29,16 @@ Following LED status are defined:
 ## Versions
 Only tested on 8266 Wemos.
 
+### 0.4.1 2 input & é output version
+
+PIN_SWITCH_ID_1 = 14; //D5
+
+PIN_SWITCH_ID_2 = 12; //D6
+
+PIN_CONTACT_ID_1 = 5;  //D1
+
+PIN_CONTACT_ID_2 = 4;  //D2
+
 ### 0.3.1 Multiple switch version
 
 PIN_SWITCH_ID_1 = 5;  //D1
@@ -61,7 +71,7 @@ StatusLED
 
 ![Setup](Images/SINRIC01.jpg)
 
-![Setup](Images/SINRIC04.jpg)
+![Setup](Images/SINRIC05.jpg)
 
 ![Setup](Images/SINRIC03.jpg)
 
