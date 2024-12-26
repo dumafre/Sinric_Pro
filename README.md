@@ -29,17 +29,34 @@ Following LED status are defined:
 ## Versions
 Only tested on 8266 Wemos.
 
+### 0.4.1 2 input & output version
+PIN_LED         = 2; //D4
+
+PIN_RESET       = 3; //RX
+
+PIN_OUTPUT_ID_1 = 5; //D5
+
+PIN_OUTPUT_ID_2 = 4; //D6
+
+PIN_OUTPUT_ID_3 = 0; //D6
+
+PIN_OUTPUT_ID_4 = 14; //D6
+
+PIN_INPUT_ID_1 = 12;  //D1
+
+PIN_INPUT_ID_2 = 13;  //D2
+
 ### 0.3.1 Multiple switch version
 
-PIN_SWITCH_ID_1 = 5;  //D1
+PIN_CONTACT_ID_1 = 5;  //D1
 
-PIN_SWITCH_ID_2 = 4;  //D2
+PIN_CONTACT_ID_2 = 4;  //D2
 
-PIN_SWITCH_ID_3 = 14; //D5
+PIN_CONTACT_ID_3 = 14; //D5
 
-PIN_SWITCH_ID_4 = 12; //D6
+PIN_CONTACT_ID_4 = 12; //D6
 
-PIN_SWITCH_ID_5 = 13; //D7
+PIN_CONTACT_ID_5 = 13; //D7
 
 ### 0.2.1 OTA version
 
@@ -61,7 +78,7 @@ StatusLED
 
 ![Setup](Images/SINRIC01.jpg)
 
-![Setup](Images/SINRIC04.jpg)
+![Setup](Images/SINRIC06.jpg)
 
 ![Setup](Images/SINRIC03.jpg)
 
