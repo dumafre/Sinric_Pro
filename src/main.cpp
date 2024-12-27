@@ -4,8 +4,9 @@
 // 0.2.1 plus ota
 // 0.3.1 multiple switch
 // 0.4.1 2 switch outputs, two contact inputs
+// 0.4.2 reset output by inputs
 
-#define FIRMWARE_VERSION "0.4.1"  
+#define FIRMWARE_VERSION "0.4.2"
 #ifdef ENABLE_DEBUG
   #define DEBUG_ESP_PORT Serial
   #define NODEBUG_WEBSOCKETS
@@ -129,6 +130,21 @@ bool onPowerState4(const String &deviceId, bool &state) {
  return true; 
 }
 
+void resetOutputs(){
+    Serial.println("Putting outputs low.");
+    SinricProSwitch& mySwitch1 = SinricPro[OUTPUT_ID_1];
+    SinricProSwitch& mySwitch2 = SinricPro[OUTPUT_ID_2];
+    SinricProSwitch& mySwitch3 = SinricPro[OUTPUT_ID_3];
+    SinricProSwitch& mySwitch4 = SinricPro[OUTPUT_ID_4];
+
+    mySwitch1.sendPowerStateEvent(false);
+    mySwitch2.sendPowerStateEvent(false);
+    mySwitch3.sendPowerStateEvent(false);
+    mySwitch4.sendPowerStateEvent(false);
+
+    slm("ready").ledSetStill(HIGH);
+}
+
 // input functions
 bool lastContactState1 = false;
 unsigned long lastChange1 = 0;
@@ -146,6 +162,10 @@ void handleContactsensor1() {
     lastChange1 = actualMillis;                          // update debounce time
     SinricProContactsensor &myContact1 = SinricPro[INPUT_ID_1]; // get contact sensor device
     myContact1.sendContactEvent(actualContactState);      // send event with actual state
+
+    if (actualContactState) {
+      resetOutputs();
+    }
   }
 }
 
@@ -165,6 +185,10 @@ void handleContactsensor2() {
     lastChange2 = actualMillis;                          // update debounce time
     SinricProContactsensor &myContact2 = SinricPro[INPUT_ID_2]; // get contact sensor device
     myContact2.sendContactEvent(actualContactState);      // send event with actual state
+
+    if (actualContactState) {
+      resetOutputs();
+    }
   }
 }
 
