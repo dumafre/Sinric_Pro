@@ -4,6 +4,7 @@
 // 0.2.1 plus ota
 // 0.3.1 multiple switch
 // 0.4.1 2 switch outputs, two contact inputs
+// 0.4.2 reset output by inputs
 
 #define FIRMWARE_VERSION "0.4.2"
 #ifdef ENABLE_DEBUG
