@@ -104,6 +104,8 @@ bool handleOTAUpdate(const String& url, int major, int minor, int patch, bool fo
 // output functions
 bool onPowerState1(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 1 turned %s", state?"on":"off");
+ Serial.println();
+ 
  digitalWrite(PIN_OUTPUT_ID_1, state ? HIGH:LOW);
  slm("ready").ledSetStill(state ? LOW:HIGH);
  return true; 
@@ -111,6 +113,8 @@ bool onPowerState1(const String &deviceId, bool &state) {
 
 bool onPowerState2(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 2 turned %s", state?"on":"off");
+ Serial.println();
+
  digitalWrite(PIN_OUTPUT_ID_2, state ? HIGH:LOW);
  slm("ready").ledSetStill(state ? LOW:HIGH);
  return true; 
@@ -119,6 +123,8 @@ bool onPowerState2(const String &deviceId, bool &state) {
 bool onPowerState3(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 3 turned %s", state?"on":"off");
  digitalWrite(PIN_OUTPUT_ID_3, state ? HIGH:LOW);
+ Serial.println();
+
  slm("ready").ledSetStill(state ? LOW:HIGH);
  return true; 
 }
@@ -126,6 +132,8 @@ bool onPowerState3(const String &deviceId, bool &state) {
 bool onPowerState4(const String &deviceId, bool &state) {
  Serial.printf("\nDevice 4 turned %s", state?"on":"off");
  digitalWrite(PIN_OUTPUT_ID_4, state ? HIGH:LOW);
+ Serial.println();
+
  slm("ready").ledSetStill(state ? LOW:HIGH);
  return true; 
 }
@@ -137,10 +145,29 @@ void resetOutputs(){
     SinricProSwitch& mySwitch3 = SinricPro[OUTPUT_ID_3];
     SinricProSwitch& mySwitch4 = SinricPro[OUTPUT_ID_4];
 
-    mySwitch1.sendPowerStateEvent(false);
-    mySwitch2.sendPowerStateEvent(false);
-    mySwitch3.sendPowerStateEvent(false);
-    mySwitch4.sendPowerStateEvent(false);
+    if (digitalRead(PIN_OUTPUT_ID_1)) {
+      digitalWrite(PIN_OUTPUT_ID_1, LOW);
+      mySwitch1.sendPowerStateEvent(false);
+      Serial.println("Reset output 1");
+    }
+
+    if (digitalRead(PIN_OUTPUT_ID_2)) {
+      digitalWrite(PIN_OUTPUT_ID_2, LOW);
+      mySwitch2.sendPowerStateEvent(false);
+      Serial.println("Reset output 2");
+    }
+
+    if (digitalRead(PIN_OUTPUT_ID_3)){
+      digitalWrite(PIN_OUTPUT_ID_3, LOW);
+      mySwitch3.sendPowerStateEvent(false);
+      Serial.println("Reset output 3");
+    }
+
+    if (digitalRead(PIN_OUTPUT_ID_4)){
+      digitalWrite(PIN_OUTPUT_ID_4, LOW);
+      mySwitch4.sendPowerStateEvent(false);
+      Serial.println("Reset output 4");
+    }
 
     slm("ready").ledSetStill(HIGH);
 }
@@ -158,6 +185,8 @@ void handleContactsensor1() {
 
   if (actualContactState != lastContactState1) {         // if state has changed
     Serial.printf("Contactsensor1 is %s now\r\n", actualContactState?"open":"closed");
+    Serial.println();
+
     lastContactState1 = actualContactState;              // update last known state
     lastChange1 = actualMillis;                          // update debounce time
     SinricProContactsensor &myContact1 = SinricPro[INPUT_ID_1]; // get contact sensor device
@@ -181,6 +210,8 @@ void handleContactsensor2() {
 
   if (actualContactState != lastContactState2) {         // if state has changed
     Serial.printf("Contactsensor2 is %s now\r\n", actualContactState?"open":"closed");
+    Serial.println();
+
     lastContactState2 = actualContactState;              // update last known state
     lastChange2 = actualMillis;                          // update debounce time
     SinricProContactsensor &myContact2 = SinricPro[INPUT_ID_2]; // get contact sensor device
